@@ -6,9 +6,10 @@ import { AuthController } from "./Auth.controller";
 import { JwtModule } from "@nestjs/jwt";
 
 @Module({
-    imports: [MongooseModule.forFeature([{ name: Auth.name, schema: AuthSchema }]), JwtModule.register({
+    imports: [MongooseModule.forFeature([{name:'AuthModel', schema: AuthSchema }]), JwtModule.register({
         secret: process.env.JWT_SECRET || 'defaultSecret', // Replace 'defaultSecret' with your actual secret key
-        signOptions: { expiresIn: '1h' },
+      signOptions: { expiresIn: '15m' },
+      global: true,
       }), ],
     providers: [AuthService],
     controllers: [AuthController],

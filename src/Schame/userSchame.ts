@@ -17,7 +17,7 @@ export class Auth extends Document {
   surname: string;
 
   @Prop({ required: false })
-  birthdate: Date;
+  birthdate: String;
 
   @Prop({ required: true })
   gender: string;

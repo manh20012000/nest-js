@@ -20,7 +20,6 @@ export class AuthController {
         return this.authService.LoginUser(loginUser,res);
     }
     
-
     @Post('/sigin')
     @UseInterceptors(FileInterceptor('file',multerConfig))
         

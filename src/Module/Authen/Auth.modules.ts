@@ -9,7 +9,7 @@ import { AuthMiddleware } from "src/Protected/MiddwaveProtected";
 @Module({
     imports: [MongooseModule.forFeature([{name:'AuthModel', schema: AuthSchema }]), JwtModule.register({
         secret: process.env.JWT_SECRET || 'defaultSecret', // Replace 'defaultSecret' with your actual secret key
-        signOptions: { expiresIn: '15m' },
+        signOptions: { expiresIn: '5m' },
       global: true,
       }), ],
     providers: [AuthService,JwtStrategy],

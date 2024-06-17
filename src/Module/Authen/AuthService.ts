@@ -20,7 +20,7 @@ export class AuthService {
     const user =await this.validateUser(login.email)
     if (user) {
       const payload = { email: user.email };
-      const accessToken = this.jwtService.sign(payload, { secret: process.env.JWT_SECRET, expiresIn: '15m' });
+      const accessToken = this.jwtService.sign(payload, { secret: process.env.JWT_SECRET, expiresIn: '5m' });
       const refreshToken = this.jwtService.sign(payload, { secret: process.env.JWT_SECRET, expiresIn: '7d' });
       const match = await bcrypt.compare(login.password, user.password);
       if (match) {

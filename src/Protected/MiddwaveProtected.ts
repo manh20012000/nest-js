@@ -4,6 +4,7 @@ import { Request, Response, NextFunction } from 'express';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Auth } from 'src/Schema/userSchame';
+
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
   constructor(
@@ -31,20 +32,49 @@ export class AuthMiddleware implements NestMiddleware {
     }
 
     try {
-      const decoded = this.jwtService.verify(refreshToken, { secret: process.env.JWT_SECRET });
-      const email = decoded.email;
+
+      const decodedAccessToken = this.jwtService.verify(accessToken, {
+        secret: process.env.JWT_SECRET,
+      });
+
+      const email = decodedAccessToken.email;
+
       const user = await this.authModel.findOne({ email }).select('-password');
-      
+
       if (!user) {
         return res.status(401).json({ message: 'User not found' });
       }
 
-      (req as any).user = user; // Gán thông tin người dùng vào req
+      (req as any).user = user;
 
       next();
-    } catch (err) {
-      console.log('Invalid token error:', err); // Log lỗi để kiểm tra
-      return res.status(401).json({ message: 'Invalid token' });
+    } catch (accessTokenError) {
+     
+      try {
+    
+        const decodedRefreshToken = this.jwtService.verify(refreshToken, {
+          secret: process.env.JWT_SECRET,
+        });
+
+        const email = decodedRefreshToken.email;
+
+        const user = await this.authModel.findOne({ email }).select('-password');
+
+        if (!user) {
+          return res.status(401).json({ message: 'User not found' });
+        }
+
+        const newAccessToken = this.jwtService.sign({ email: user.email },{ secret: process.env.JWT_SECRET, expiresIn: '5m' });
+
+        res.cookie('accessToken', newAccessToken, { httpOnly: true, secure: false, sameSite: 'lax' });
+
+        (req as any).user = user;
+
+        next();
+      } catch (refreshTokenError) {
+        console.log('Invalid refresh token error:', refreshTokenError);
+        return res.status(401).json({ message: 'Invalid refresh token' });
+      }
     }
   }
 }

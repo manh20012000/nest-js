@@ -9,7 +9,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import multer, { diskStorage } from 'multer';
 import { multerConfig } from 'src/configeMulter';
 import { Request } from 'express';
-import { AuthMiddleware } from 'src/Protected/MiddwaveProtected';
+import { Express,Response} from 'express'
 @Controller('auth')
     
 export class AuthController {
@@ -46,13 +46,24 @@ export class AuthController {
         return this.authService.getUser()
     }
 
-    @Post('refresh-token')
-  async refreshToken(@Req() req: Request) {
-    const oldRefreshToken = req.body.refreshToken;
-    if (!oldRefreshToken) {
+  @Post('refreshtoken')
+  async refreshToken(@Req() req: Request,@Res() res: Response,) {
+     const cookies = req.headers.cookie;
+  
+    const cookieMap = cookies.split(';').reduce((acc, cookie) => {
+      const [name, value] = cookie.split('=').map(c => c.trim());
+      acc[name] = value;
+      return acc;
+    }, {} as Record<string, string>);
+    
+    const accessToken = cookieMap.accessToken;
+    const refreshToken = cookieMap.refreshToken;
+    
+    this.authService.refreshToken(refreshToken,res);
+    if (!cookies) {
       throw new HttpException('Refresh token is required',404);
     }
-    return this.authService.refreshToken(oldRefreshToken);
+  
   }
 }
 

@@ -9,6 +9,7 @@ import { Auth } from 'src/Schema/userSchame';
 export class AuthMiddleware implements NestMiddleware {
   constructor(
     private readonly jwtService: JwtService,
+
     @InjectModel('AuthModel') private authModel: Model<Auth>,
   ) {}
 
@@ -17,6 +18,7 @@ export class AuthMiddleware implements NestMiddleware {
     if (!cookies) {
       return res.status(401).json({ message: 'Missing cookies' });
     }
+    
 
     const cookieMap = cookies.split(';').reduce((acc, cookie) => {
       const [name, value] = cookie.split('=').map(c => c.trim());
@@ -30,7 +32,7 @@ export class AuthMiddleware implements NestMiddleware {
     if (!accessToken) {
       return res.status(401).json({ message: 'Missing access token' });
     }
-
+    
     try {
 
       const decodedAccessToken = this.jwtService.verify(accessToken, {

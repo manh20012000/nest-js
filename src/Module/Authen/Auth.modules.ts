@@ -1,6 +1,6 @@
 import { Module ,NestModule,MiddlewareConsumer,RequestMethod } from "@nestjs/common";
 import { MongooseModule } from "@nestjs/mongoose";
-import { Auth,AuthSchema} from "src/Schema/userSchame";
+import { AuthSchema} from "src/Schema/userSchame";
 import { AuthService } from "./AuthService";
 import { AuthController } from "./Auth.controller";
 import { JwtModule } from "@nestjs/jwt";
@@ -10,10 +10,11 @@ import { AuthMiddleware } from "src/Protected/MiddwaveProtected";
     imports: [MongooseModule.forFeature([{name:'AuthModel', schema: AuthSchema }]), JwtModule.register({
         secret: process.env.JWT_SECRET || 'defaultSecret', // Replace 'defaultSecret' with your actual secret key
         signOptions: { expiresIn: '5m' },
-      global: true,
+        global: true,
       }), ],
     providers: [AuthService,JwtStrategy],
-    controllers: [AuthController],
+  controllers: [AuthController],
+  exports: [AuthService], 
   })
   export class AuthModule implements NestModule {
     configure(consumer: MiddlewareConsumer) {

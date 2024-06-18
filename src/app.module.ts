@@ -7,7 +7,9 @@ import { AuthController } from './Module/Authen/Auth.controller';
 import { AuthModule } from './Module/Authen/Auth.modules';
 import { AuthService } from './Module/Authen/AuthService';
 import { ServeStaticModule } from '@nestjs/serve-static';
+import { EventGateway } from './EventGateway';
 import { join } from 'path';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -21,6 +23,6 @@ import { join } from 'path';
     AuthModule
   ],
      controllers: [AppController],
-      providers: [AppService],
+      providers: [EventGateway,AppService],
 })
 export class AppModule {}

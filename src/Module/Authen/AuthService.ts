@@ -120,14 +120,16 @@ export class AuthService {
 
   async handelerToken(token:string) {
     try {
-      console.log(token,'token khi được verifte')
-      const email = this.jwtService.verify(token, {
+      
+      const decoded = this.jwtService.verify(token, {
         secret: process.env.JWT_SECRET,
-      })
+      });
+      const email = decoded.email;
       const user = await this.validateUser(email);
       if (!user) {
         throw new HttpException('not found user', 404)
       }
+      console.log(user._id)
       return user._id;
 
      } catch (e) {

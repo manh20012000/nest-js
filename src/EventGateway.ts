@@ -1,9 +1,9 @@
 import { OnGatewayConnection,SubscribeMessage, OnGatewayDisconnect, OnGatewayInit, WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
 import { Server, Socket } from "socket.io";
 import { AuthService } from "./Module/Authen/AuthService";
-import { Injectable,Logger } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 
-@WebSocketGateway()
+@WebSocketGateway({ cors: { origin: '*' } })
 @Injectable()
 export class EventGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
     @WebSocketServer()
@@ -18,20 +18,22 @@ export class EventGateway implements OnGatewayInit, OnGatewayConnection, OnGatew
   }
 
   async handleConnection(socket: Socket) {
+
     const token = socket.handshake.query.token as string;
+ 
     if (!token) {
+      console.log('disconnect',socket)
       socket.disconnect();
       return;
-    }
-
+    } 
     try {
       const userId = await this.authService.handelerToken(token);
       this.connectedUsers.set(socket.id, userId);
-      console.log(`User connected: ${userId}, socket ID: ${socket.id}`);
-      socket.data.userId = userId; // Lưu trữ userId trong dữ liệu socket
+      // console.log(`User connected: ${userId}, socket ID: ${socket.id}`);
+      // socket.data.userId = userId; // Lưu trữ userId trong dữ liệu socket
     } catch (error) {
       console.error('Invalid token:', error);
-      socket.disconnect();
+      // socket.disconnect();
     }
   }
 

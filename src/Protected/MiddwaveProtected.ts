@@ -14,21 +14,15 @@ export class AuthMiddleware implements NestMiddleware {
   ) {}
 
   async use(req: Request, res: Response, next: NextFunction) {
-    const cookies = req.headers.cookie;
-    if (!cookies) {
+    // const cookies = req.headers.cookie;
+    const accessToken = req.headers['authorization'];
+    const refreshToken = req.headers['refresh-token']as string;
+    
+    if (!accessToken) {
       return res.status(401).json({ message: 'Missing cookies' });
     }
     
-
-    const cookieMap = cookies.split(';').reduce((acc, cookie) => {
-      const [name, value] = cookie.split('=').map(c => c.trim());
-      acc[name] = value;
-      return acc;
-    }, {} as Record<string, string>);
-
-    const accessToken = cookieMap['accessToken'];
-    const refreshToken = cookieMap['refreshToken'];
-
+    
     if (!accessToken) {
       return res.status(401).json({ message: 'Missing access token' });
     }
@@ -54,8 +48,8 @@ export class AuthMiddleware implements NestMiddleware {
      
       try {
     
-        const decodedRefreshToken = this.jwtService.verify(refreshToken, {
-          secret: process.env.JWT_SECRET,
+     const decodedRefreshToken = this.jwtService.verify(refreshToken, {
+          secret: process.env.REFRESH_JWT_SECRET,
         });
 
         const email = decodedRefreshToken.email;
@@ -68,7 +62,10 @@ export class AuthMiddleware implements NestMiddleware {
 
         const newAccessToken = this.jwtService.sign({ email: user.email },{ secret: process.env.JWT_SECRET, expiresIn: '5m' });
 
-        res.cookie('accessToken', newAccessToken, { httpOnly: true, secure: false, sameSite: 'lax' });
+        return res.status(200).json({
+          message: 'New access token issued',
+          accessToken: newAccessToken
+        });
 
         (req as any).user = user;
 

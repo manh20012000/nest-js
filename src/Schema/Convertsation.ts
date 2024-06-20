@@ -6,7 +6,7 @@ export class ConvertShema extends Document{
     @Prop({ required: true })
     participants: [
         {
-          
+
         },
     ]
     @Prop({ required: true })

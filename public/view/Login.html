@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login</title>
+  </head>
+  <body>
+    <div
+      style="
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      "
+    >
+      <form
+        id="loginForm"
+        style="display: flex; flex-direction: column; width: 300px"
+      >
+        <input
+          id="email"
+          placeholder="Nhập email"
+          type="text"
+          required
+          style="margin-bottom: 10px; padding: 10px"
+        />
+        <input
+          id="password"
+          placeholder="Nhập password"
+          type="password"
+          required
+          style="margin-bottom: 10px; padding: 10px"
+        />
+        <button type="submit" style="padding: 10px">Đăng nhập</button>
+      </form>
+    </div>
+    <script>
+      document
+        .getElementById('loginForm')
+        .addEventListener('submit', async (event) => {
+          event.preventDefault();
+          const email = document.getElementById('email').value;
+          const password = document.getElementById('password').value;
+
+          try {
+            const response = await fetch('http://localhost:8080/auth/login', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ email, password }),
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                 console.log(data.accessToken,'gúa truh đa ra ')
+                localStorage.setItem('accessToken', data.accessToken);
+                localStorage.setItem('refreshToken', data.refreshToken);
+               
+              window.location.href = 'sockethtml.html';
+              
+            } else {
+                alert('Đăng nhập thất bại');
+            }
+            // Chuyển hướng đến trang chat
+            
+          } catch (error) {
+            alert('Đăng nhập thất bại: ' + error.message);
+          }
+        });
+    </script>
+  </body>
+</html>

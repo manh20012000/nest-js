@@ -8,8 +8,12 @@ export class ChatService{
     constructor(@InjectModel('ChatModel') private chat: Model<Chat>,
                  @InjectModel('SchemaConvertStation') private Chatconvert :Model<ConvertShema>
     ) {
-    
 
-     }
+      
+     
+ }
     
+    async SelectUserChat() { 
+          
+      }
 }

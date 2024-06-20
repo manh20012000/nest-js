@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Nhấn lựa chọn để xem lại thông tin của user</h1>
+    <button id="getUserInfo">Lấy thông tin người dùng</button>
+    <pre id="userInfo"></pre>
+    
+    <script>
+        document.getElementById('getUserInfo').addEventListener('click', () => {
+           const accessToken = localStorage.getItem('accessToken');
+            const refreshToken = localStorage.getItem('refreshToken');
+              if (!accessToken || !refreshToken) {
+                console.error('No token found');
+                return;
+            }
+            fetch('http://localhost:8080/auth/Oneuser', {
+                method: 'GET',
+                headers: {
+                    'Authorization': accessToken,
+                    'Refresh-Token': refreshToken,
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                document.getElementById('userInfo').textContent = JSON.stringify(data, null, 2);
+            })
+            .catch(error => {
+                console.error('There was a problem with your fetch operation:', error);
+            });
+        });
+    </script>
+</body>
+</html>

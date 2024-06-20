@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 const uiID = uuidv4();
 console.log(uiID)
 export const multerConfig = {
-  
+
   storage: diskStorage({
     destination: 'public/image/',
     filename: (req, file, cb) => {

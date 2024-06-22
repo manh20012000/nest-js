@@ -1,4 +1,8 @@
-export const addConnection = (clients: Record<string, string[]>, userId: string, socketId: string): Record<string, string[]> => {
+export const addConnection = (
+  clients: Record<string, string[]>,
+  userId: string,
+  socketId: string,
+): Record<string, string[]> => {
   if (clients[userId]) {
     clients[userId].push(socketId);
   } else {
@@ -7,12 +11,15 @@ export const addConnection = (clients: Record<string, string[]>, userId: string,
   return clients;
 };
 
-export const removeSocketIDFromArray = (clients: Record<string, string[]>, userId: string, socketId: string): Record<string, string[]> => {
-  clients[userId] = clients[userId]?.filter(id => id !== socketId);
+export const removeSocketIDFromArray = (
+  clients: Record<string, string[]>,
+  userId: string,
+  socketId: string,
+): Record<string, string[]> => {
+  clients[userId] = clients[userId]?.filter((id) => id !== socketId);
 
   if (!clients[userId]?.length) {
     delete clients[userId];
   }
   return clients;
 };
-

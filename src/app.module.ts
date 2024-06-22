@@ -7,7 +7,7 @@ import { AuthModule } from './Module/Authen/Auth.modules';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { EventGateway } from './EventGateway';
 import { join } from 'path';
-
+import { ChatModule } from './Module/ChatSocket/Chat.Module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -18,7 +18,7 @@ import { join } from 'path';
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'public'),
     }),
-    AuthModule
+    AuthModule,ChatModule
   ],
      controllers: [AppController],
       providers: [EventGateway,AppService],

@@ -1,140 +1,208 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Chat with NestJS Socket</title>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        margin: 0;
-        background-color: #f0f0f0;
-      }
 
-      .chat-container {
-        background-color: white;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        width: 300px;
-      }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chat with NestJS Socket</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f0f0f0;
+    }
 
-      .messages {
-        height: 300px;
-        overflow-y: auto;
-        border: 1px solid #ddd;
-        padding: 10px;
-        margin-bottom: 10px;
-        border-radius: 8px;
-      }
+    .container {
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      width: 300px;
+      max-height: 500px;
+      overflow-y: auto;
+    }
 
-      .message {
-        margin-bottom: 10px;
-      }
+    .user-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: pink;
+      padding: 10px;
+      border-radius: 8px;
+    }
 
-      form {
-        display: flex;
-        gap: 10px;
-      }
+    .user-header img {
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+    }
 
-      input[type='text'] {
-        flex: 1;
-        padding: 10px;
-        border: 1px solid #990a0a;
-        border-radius: 4px;
-      }
+    .user-list {
+      margin-top: 20px;
+    }
 
-      button {
-        padding: 10px 15px;
-        border: none;
-        background-color: #007bff;
-        color: white;
-        border-radius: 4px;
-        cursor: pointer;
-      }
+    .user-item {
+      display: flex;
+      align-items: center;
+      padding: 10px;
+      margin-bottom: 5px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      position: relative;
+    }
 
-      button:hover {
-        background-color: #0056b3;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="chat-container">
-      <div class="messages" id="messages"></div>
-      <form id="messageForm">
-        <input
-          type="text"
-          id="recipientId"
-          placeholder="Recipient ID"
-          required
-        />
-        <input
-          type="text"
-          id="message"
-          placeholder="Enter your message"
-          required
-        />
-        <button type="submit">Send</button>
-      </form>
+    .user-item img {
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      margin-right: 10px;
+    }
+
+    .user-item:hover {
+      background-color: #f0f0f0;
+    }
+
+    .user-item .status {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background-color: grey;
+      position: absolute;
+      bottom: 5px;
+      right: 5px;
+      z-index: 1;
+    }
+
+    .user-item.online .status {
+      background-color: green;
+    }
+  </style>
+</head>
+
+<body>
+  <div style="width: 100%; height: 100%">
+    <div style="
+          background-color: pink;
+          width: 30%;
+          height: 10%;
+          display: flex;
+          justify-content: space-between;
+        ">
+      <h5 id="name"></h5>
+      <div style="
+            border-radius: 100%;
+            width: 10%;
+            height: 100%;
+            background-color: green;
+          ">
+        <img class="profile-image" id="avatar" src="" style="width: 100%; height: 100%" />
+      </div>
     </div>
-    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-    <script>
-      document.addEventListener('DOMContentLoaded', () => {
-         const token = localStorage.getItem('accessToken');
-         const refreshtoken= localStorage.getItem('refreshToken');
-         console.log(token,refreshtoken)
-        if (!token) {
-            console.error('No token found');
-            return;
-        }
-        const socket = io('http://localhost:8080'
-        , {
-        query: { token,refreshtoken }
-        }
-      );
-        console.log('ssocket log ->>>  ', socket,refreshtoken);
+    <div class="user-list" id="userList"></div>
+  </div>
 
-        socket.on('connect', () => {
-          console.log('Connected to server');
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script src="./socket.js"></script>
+  <script>
+
+    const userJson = localStorage.getItem('InforUser');
+    if (userJson) {
+      const user = JSON.parse(userJson);
+      console.log(user, 'dhsdh log user')
+      const iduser = user.id;
+      document.getElementById('name').textContent = user.name;
+      document.getElementById('avatar').src = user.avatar;
+    }
+
+    fetch('http://localhost:8080/auth/getUser', {
+      method: 'GET',
+      headers: {
+        Authorization: token,
+        'Refresh-Token': refreshtoken,
+        'Content-Type': 'application/json',
+      },
+    })
+      .then((response) => response.json())
+      .then((users) => {
+        const userListContainer = document.getElementById('userList');
+        users.forEach((user) => {
+          const userItem = document.createElement('div');
+          userItem.classList.add('user-item');
+          userItem.setAttribute('data-user-id', user._id);
+          userItem.innerHTML = `<img src="${user.avatar}" alt="${user.name} Avatar"> <span>${user.name}</span><div class="status"></div>`;
+          userListContainer.appendChild(userItem);
+
+          // Xử lý khi người dùng click vào một người dùng trong danh sách
+          userItem.addEventListener('click', () => {
+            const userJson = encodeURIComponent(JSON.stringify(user));
+            window.location.href = `Chat.html?user=${userJson}`;
+          });
         });
-           socket.on('newAccessToken', (newToken) => {
-                console.log('Received new access token:', newToken);
-                localStorage.setItem('accessToken', newToken);
-                // Reconnect with the new token if necessary
-                socket.io.opts.query.token = newToken;
-                socket.connect();
-            });
-          socket.on('disconnect', () => {
-            console.log('Disconnected from server');
-          });
-          
-          socket.on('receiveMessage', (data) => {
-            const messages = document.getElementById('messages');
-            const messageElement = document.createElement('div');
-            messageElement.classList.add('message');
-            messageElement.textContent = `From ${data.senderId}: ${data.message}`;
-            messages.appendChild(messageElement);
-            messages.scrollTop = messages.scrollHeight;
-          });
-           socket.on("server-send-when-has-user-online", (userId) => {
-            dispatch(Status(userId));
 
-            // setUserOnline(prevUsers => [...prevUsers, userId]);
-          });
-          const messageForm = document.getElementById('messageForm');
-          messageForm.addEventListener('submit', (event) => {
-            event.preventDefault();
-            const recipientId = document.getElementById('recipientId').value;
-            const message = document.getElementById('message').value;
-            socket.emit('sendMessage', { recipientId, message });
-            document.getElementById('message').value = '';
-          });
 
-      });
-    </script>
-  </body>
+        // Kết nối Socket.IO và xử lý sự kiện 'UserOnline'
+
+        appSocket.socket.on('newAccessToken', (newToken) => {
+          console.log('Received new access token:', newToken);
+          localStorage.setItem('accessToken', newToken);
+
+          appSocket.socket.io.opts.query.token = newToken;
+          appSocket.socket.connect();
+        });
+
+        appSocket.socket.on("server-send-when-has-user-online", (onlineUserIds) => {
+          console.log(onlineUserIds, 'giá trị user được log ra');
+
+          // Cập nhật trạng thái người dùng
+          const userItems = document.querySelectorAll('.user-item');
+          userItems.forEach((item) => {
+            const userId = item.getAttribute('data-user-id');
+            const statusElement = item.querySelector('.status');
+
+            if (onlineUserIds.includes(userId)) {
+              item.classList.add('online');
+            } else {
+              item.classList.remove('online');
+            }
+          });
+        });
+        appSocket.socket.on("user-online", (onlineUserIds) => {
+          console.log(onlineUserIds, 'giá trị user được log ra');
+
+          // Cập nhật trạng thái người dùng
+          const userItems = document.querySelectorAll('.user-item');
+          userItems.forEach((item) => {
+            const userId = item.getAttribute('data-user-id');
+            const statusElement = item.querySelector('.status');
+
+            if (onlineUserIds.includes(userId)) {
+              item.classList.add('online');
+            } else {
+              item.classList.remove('online');
+            }
+          });
+        });
+      })
+
+  </script>
+</body>
+
 </html>
+
+<!-- /* const newuser = {
+                avatar:user.avatar
+                  ,
+                birthdate:user.birthdate,
+               
+                email:user.email,
+                gender:user.gender,
+                name: user.name,
+                nameaccount: user.nameaccount,
+                phonenumber: user.phonenumber,
+                surname: user.surname,
+              };*/ -->

@@ -16,19 +16,17 @@ export class AuthMiddleware implements NestMiddleware {
   async use(req: Request, res: Response, next: NextFunction) {
     // const cookies = req.headers.cookie;
     const accessToken = req.headers['authorization'];
-    const refreshToken = req.headers['refresh-token']as string;
-    
+    const refreshToken = req.headers['refresh-token'] as string;
+  
     if (!accessToken) {
       return res.status(401).json({ message: 'Missing cookies' });
     }
-    
-    
+
     if (!accessToken) {
       return res.status(401).json({ message: 'Missing access token' });
     }
-    
-    try {
 
+    try {
       const decodedAccessToken = this.jwtService.verify(accessToken, {
         secret: process.env.JWT_SECRET,
       });
@@ -36,38 +34,36 @@ export class AuthMiddleware implements NestMiddleware {
       const email = decodedAccessToken.email;
 
       const user = await this.authModel.findOne({ email }).select('-password');
-
       if (!user) {
         return res.status(401).json({ message: 'User not found' });
       }
 
       (req as any).user = user;
-
       next();
-    } catch (accessTokenError) {
-     
+    } catch (accessTokenError){
       try {
-    
-     const decodedRefreshToken = this.jwtService.verify(refreshToken, {
+        const decodedRefreshToken = this.jwtService.verify(refreshToken, {
           secret: process.env.REFRESH_JWT_SECRET,
         });
 
         const email = decodedRefreshToken.email;
 
-        const user = await this.authModel.findOne({ email }).select('-password');
+        const user = await this.authModel
+          .findOne({ email })
+          .select('-password');
 
         if (!user) {
           return res.status(401).json({ message: 'User not found' });
         }
+        const newAccessToken = this.jwtService.sign(
+          { email: user.email },
+          { secret: process.env.JWT_SECRET, expiresIn: '1d' },
+        );
 
-        const newAccessToken = this.jwtService.sign({ email: user.email },{ secret: process.env.JWT_SECRET, expiresIn: '5m' });
-
-        return res.status(200).json({
-          message: 'New access token issued',
-          accessToken: newAccessToken
+        res.status(200).json({
+          message: 'New vui lòng login lại  ',
+          accessToken: newAccessToken,
         });
-
-        (req as any).user = user;
 
         next();
       } catch (refreshTokenError) {

@@ -15,24 +15,23 @@ import { loginUser } from './Auth.dto/Login';
 import { logoutUser } from './Auth.dto/Logout';
 import { JwtService } from '@nestjs/jwt';
 import { getUser } from './Auth.dto/getUser';
-import  { Express, Response } from 'express';
+import { Express, Response } from 'express';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectModel('AuthModel') private authModel: Model<Auth>,
     private jwtService: JwtService,
-  
   ) {}
-   
+
   async LoginUser(login: loginUser, @Res() res) {
     const user = await this.validateUser(login.email);
-     console.log(login)
+    console.log(login);
     if (user) {
       const payload = { email: user.email };
       const accessToken = this.jwtService.sign(payload, {
         secret: process.env.JWT_SECRET,
-        expiresIn: '5m',
+        expiresIn: '1d',
       });
 
       const refreshToken = this.jwtService.sign(payload, {
@@ -52,10 +51,18 @@ export class AuthService {
           refreshToken: refreshToken,
         };
         // // Set cookies
-      //  res.status(200).json('accessToken', accessToken);
+        //  res.status(200).json('accessToken', accessToken);
         //  res.status(200).json('refreshToken', refreshToken);
-             res.cookie('accessToken', accessToken, { httpOnly: true, secure: false, sameSite: 'lax' });
-             res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: false, sameSite: 'lax' });
+        res.cookie('accessToken', accessToken, {
+          httpOnly: true,
+          secure: false,
+          sameSite: 'lax',
+        });
+        res.cookie('refreshToken', refreshToken, {
+          httpOnly: true,
+          secure: false,
+          sameSite: 'lax',
+        });
         return res.status(200).json(newUser);
       }
     }
@@ -82,7 +89,7 @@ export class AuthService {
         };
 
         const createdAuth = await new this.authModel(newUser);
-        
+
         return await createdAuth.save();
       } catch (error) {
         console.log(error);
@@ -95,9 +102,9 @@ export class AuthService {
     return this.authModel.findById({ _id: id }).select('-password -_id');
   }
 
-  // getAllUser
-  async getUser() {
-    return this.authModel.find();
+  // getAllUser với lấy những tất cả user mà trừ user có id là khoong lấy ra 
+  async getUser(id: string) {
+    return this.authModel.find({ _id: { $ne: id } }).select('-password');
   }
 
   //validate tài khoản
@@ -109,8 +116,8 @@ export class AuthService {
     return user;
   }
 
-  // refreshtken cơ chế này hoạt động khi mà người dùng vào app đã được luuw tài khoản và 
-  // hoặc người ta vào 1 cái route khác đăng nhập 
+  // refreshtken cơ chế này hoạt động khi mà người dùng vào app đã được luuw tài khoản và
+  // hoặc người ta vào 1 cái route khác đăng nhập
   async refreshToken(refreshToken: string, res: Response) {
     try {
       const decoded = this.jwtService.verify(refreshToken, {
@@ -122,14 +129,14 @@ export class AuthService {
       if (!user) {
         throw new HttpException('not found user', 404);
       }
-      
+
       const payload = { email: user.email };
       const newAccessToken = this.jwtService.sign(payload, {
         secret: process.env.JWT_SECRET,
-        expiresIn: '5m',
+        expiresIn: '1d',
       });
       // const newRefreshToken = this.jwtService.sign(payload, { expiresIn: '7d' });
-    
+
       res.cookie('accessToken', newAccessToken, {
         httpOnly: true,
         secure: false,
@@ -142,22 +149,20 @@ export class AuthService {
   }
 
   async handelerToken(token: string, refreshToken: string) {
-  
-    let newAccessToken = "";
+    let newAccessToken = '';
     try {
       const decoded = this.jwtService.verify(token, {
         secret: process.env.JWT_SECRET,
       });
       const email = decoded.email;
       const user = await this.validateUser(email);
-      
+
       if (!user) {
         throw new HttpException('User not found', 404);
       }
-      newAccessToken=token
+      newAccessToken = token;
       return { userId: user._id, newAccessToken };
     } catch (e) {
-
       // Kiểm tra nếu lỗi là do token hết hạn
       if (e.name === 'TokenExpiredError') {
         try {
@@ -170,12 +175,14 @@ export class AuthService {
           if (!user) {
             throw new HttpException('User not found', 404);
           }
-          
+
           // Tạo mới access token
           const payload = { email: user.email };
-           newAccessToken = this.jwtService.sign(payload, { secret: process.env.JWT_SECRET, expiresIn: '5m' });
+          newAccessToken = this.jwtService.sign(payload, {
+            secret: process.env.JWT_SECRET,
+            expiresIn: '1d',
+          });
           return { userid: user.id, newAccessToken };
-          
         } catch (error) {
           throw new HttpException('Invalid refresh token', 401);
         }
@@ -183,7 +190,5 @@ export class AuthService {
         throw new HttpException('Invalid token', 401);
       }
     }
-   
   }
 }
-

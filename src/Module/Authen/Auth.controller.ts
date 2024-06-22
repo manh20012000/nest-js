@@ -44,7 +44,7 @@ export class AuthController {
     const fileavatar: String = `${protocol}://${host}/image/` + file.filename;
     const user = await this.authService.SiginUser(siginUser, fileavatar);
     const objUserSusscess = await { message: 'Sigin successful', user };
-   
+
     return user;
   }
 
@@ -56,8 +56,10 @@ export class AuthController {
   }
 
   @Get('getUser')
-  async GetUser() {
-    return this.authService.getUser();
+  async GetUser(@Req() req: Request) {
+    const user = (req as any).user;
+
+    return this.authService.getUser(user._id);
   }
 
   @Post('refreshtoken')

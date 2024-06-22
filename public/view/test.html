@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div>
+        <h2>test</h2>
+    </div>
+    <script>
+        const accessToken = localStorage.getItem('accessToken');
+        const refreshToken = localStorage.getItem('refreshToken');
+        console.log(refreshToken, accessToken);
+        if (!accessToken || !refreshToken) {
+            console.error('No token found');
+        } else {
+            fetch('http://localhost:8080/chat/ChatMessage666f163a9d1a876d3801acd7', {
+                method: 'post',
+                headers: {
+                    'Authorization': accessToken,
+                    'Refresh-Token': refreshToken,
+                    'Content-Type': 'application/json', 
+                }, body: JSON.stringify({message: 'sfhdfbsdbcjbsdbcjds' }),
+            })
+                ;
+        }
+    </script>
+</body>
+
+</html>

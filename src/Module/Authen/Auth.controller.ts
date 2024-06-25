@@ -61,6 +61,17 @@ export class AuthController {
 
     return this.authService.getUser(user._id);
   }
+  // hàm này thưucj thi vơi lấy lại fcm token trường hợp 1 người có thể nhận nhiều thiết bị
+  @Post('updatefcmtoken')
+  async upadatefcmToken(
+    @Req() req: Request,
+    @Body() fcmtoken: string[],
+  ): Promise<getUser> {
+    const user = (req as any).user;
+    console.log(fcmtoken);
+    const data = await this.authService.updateFCMuser(fcmtoken, user._id);
+    return data;
+  }
 
   @Post('refreshtoken')
   async refreshToken(@Req() req: Request, @Res() res: Response) {

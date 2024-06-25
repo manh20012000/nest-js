@@ -12,10 +12,9 @@ import { Auth } from 'src/Schema/userSchame';
 import * as bcrypt from 'bcrypt';
 import { SiginUser } from './Auth.dto/Sigin';
 import { loginUser } from './Auth.dto/Login';
-import { logoutUser } from './Auth.dto/Logout';
 import { JwtService } from '@nestjs/jwt';
-import { getUser } from './Auth.dto/getUser';
 import { Express, Response } from 'express';
+import { getUser } from './Auth.dto/getUser';
 
 @Injectable()
 export class AuthService {
@@ -49,6 +48,9 @@ export class AuthService {
           birthdate: user.birthdate,
           accessToken: accessToken,
           refreshToken: refreshToken,
+          fcmtoken: user.fcmtoken ?? [],
+          surname: user.surname,
+          phonenumber: user.phonenumber,
         };
         // // Set cookies
         //  res.status(200).json('accessToken', accessToken);
@@ -63,6 +65,7 @@ export class AuthService {
           secure: false,
           sameSite: 'lax',
         });
+
         return res.status(200).json(newUser);
       }
     }
@@ -102,7 +105,7 @@ export class AuthService {
     return this.authModel.findById({ _id: id }).select('-password -_id');
   }
 
-  // getAllUser với lấy những tất cả user mà trừ user có id là khoong lấy ra 
+  // getAllUser với lấy những tất cả user mà trừ user có id là khoong lấy ra
   async getUser(id: string) {
     return this.authModel.find({ _id: { $ne: id } }).select('-password');
   }
@@ -148,6 +151,18 @@ export class AuthService {
     }
   }
 
+  async updateFCMuser(fcmtokenar: string[], userid: string): Promise<getUser> {
+    {
+      const updatw: getUser = await this.authModel.findOneAndUpdate(
+        { _id: userid },
+        { fcmtoken: fcmtokenar },
+        { new: true }, // Thêm option new để trả về giá trị đã được cập nhật
+      );
+      console.log(updatw);
+      return updatw;
+    }
+  }
+  // thưc thi với xoa fcm token
   async handelerToken(token: string, refreshToken: string) {
     let newAccessToken = '';
     try {

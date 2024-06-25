@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Chat } from 'src/Schema/Chat';
-import { Converstation, ConvertShema } from 'src/Schema/Convertsation';
+import { Converstation } from 'src/Schema/Convertsation';
 import { EventGateway } from 'src/EventGateway';
 @Injectable()
 export class ChatService {
@@ -10,13 +10,12 @@ export class ChatService {
     @InjectModel('ChatModel')
     private chat: Model<Chat>,
     @InjectModel('SchemaConvertStation')
-    private Chatconvert: Model<ConvertShema>,
+    private Chatconvert: Model<Converstation>,
     private eventGate: EventGateway,
   ) {}
 
   async ChatMessage(senderId: string, reciveid: string, text: string) {
-    console.log(senderId, reciveid);
-    let consverstation: ConvertShema = await this.Chatconvert.findOne({
+    let consverstation: Converstation = await this.Chatconvert.findOne({
       participants: { $all: [senderId, reciveid] },
     });
     if (!consverstation) {
@@ -34,7 +33,15 @@ export class ChatService {
       consverstation.save();
     }
     console.log(text);
-    this.eventGate.sendMessage(reciveid, text);
+    const userSocketconnting: any =
+      await this.eventGate.getReciverSocketId(reciveid);
+    console.log(userSocketconnting);
+    userSocketconnting.forEach(async (socketId: string) => {
+      console.log(userSocketconnting, 'dshhdjshdjsdocket id ', reciveid);
+      const socketServer = await this.eventGate.socketConnect();
+      socketServer.to(socketId).emit('sendMessage', text);
+    });
+    // this.eventGate.sendMessage(reciveid, text);
   }
 
   async SelectUserChat(senderId: string, reciveId: string) {

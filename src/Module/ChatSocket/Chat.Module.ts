@@ -8,7 +8,7 @@ import { ChatService } from './Chat.Service';
 import { ChatController } from './Chat.Controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ChatSchema } from 'src/Schema/Chat';
-import { Converstation } from 'src/Schema/Convertsation';
+import { ConverstationSchema } from 'src/Schema/Convertsation';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthModule } from '../Authen/Auth.modules';
 import { EventGateway } from 'src/EventGateway';
@@ -16,7 +16,7 @@ import { EventGateway } from 'src/EventGateway';
   imports: [
     MongooseModule.forFeature([{ name: 'ChatModel', schema: ChatSchema }]),
     MongooseModule.forFeature([
-      { name: 'SchemaConvertStation', schema: Converstation },
+      { name: 'SchemaConvertStation', schema: ConverstationSchema },
     ]),
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'defaultSecret', // Replace 'defaultSecret' with your actual secret key

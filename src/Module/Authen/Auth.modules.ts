@@ -28,6 +28,11 @@ export class AuthModule implements NestModule {
     consumer.apply(AuthMiddleware).forRoutes(
       { path: 'auth/Oneuser', method: RequestMethod.GET },
       { path: 'auth/getUser', method: RequestMethod.GET },
+      { path: 'Notification/Send', method: RequestMethod.POST },
+      {
+        path: 'auth/updatefcmtoken',
+        method: RequestMethod.POST,
+      },
       {
         path: 'chat/ChatMessage',
         method: RequestMethod.POST,

@@ -30,13 +30,11 @@ export class Auth extends Document {
 
   @Prop({ required: true })
   password: string;
+  @Prop({ required: false })
+  fcmtoken: string[];
 }
 
 export const AuthSchema = SchemaFactory.createForClass(Auth);
-
-
-
-
 
 // import { Schema, Document, model, Collection } from "mongoose";
 // const AuthSchema = new Schema(
@@ -55,7 +53,7 @@ export const AuthSchema = SchemaFactory.createForClass(Auth);
 //     timestamps: true,
 //     collection: 'Users'
 //   }
- 
+
 // );
 
 // export { AuthSchema };

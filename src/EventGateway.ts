@@ -70,17 +70,8 @@ export class EventGateway
       socket.disconnect();
     }
   }
-
-  @SubscribeMessage('sendMessage')
-  async sendMessage(reciveId: string, message: string) {
-    const soketid: string[] = await this.getReciverSocketId(reciveId);
-    console.log(soketid);
-    if (soketid.length > 0) {
-      soketid.forEach((socketId: string) => {
-        console.log(soketid, 'dshhdjshdjsdocket id ', reciveId);
-        this.server.to(socketId).emit('sendMessage', message);
-      });
-    }
+  async socketConnect() {
+    return this.server;
   }
 
   handleDisconnect(socket: Socket) {
@@ -117,5 +108,17 @@ export class EventGateway
 //     });
 //   } else {
 //     console.warn(`Recipient with ID ${payload.recipientId} not connected`);
+//   }
+// }
+
+// @SubscribeMessage('sendMessage')
+// async sendMessage(reciveId: string, message: string) {
+//   const soketid: string[] = await this.getReciverSocketId(reciveId);
+//   console.log(soketid);
+//   if (soketid.length > 0) {
+//     soketid.forEach((socketId: string) => {
+//       console.log(soketid, 'dshhdjshdjsdocket id ', reciveId);
+//       this.server.to(socketId).emit('sendMessage', message);
+//     });
 //   }
 // }

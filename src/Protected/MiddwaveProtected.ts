@@ -17,11 +17,10 @@ export class AuthMiddleware implements NestMiddleware {
     // const cookies = req.headers.cookie;
     const accessToken = req.headers['authorization'];
     const refreshToken = req.headers['refresh-token'] as string;
-  
+
     if (!accessToken) {
       return res.status(401).json({ message: 'Missing cookies' });
     }
-
     if (!accessToken) {
       return res.status(401).json({ message: 'Missing access token' });
     }
@@ -40,7 +39,8 @@ export class AuthMiddleware implements NestMiddleware {
 
       (req as any).user = user;
       next();
-    } catch (accessTokenError){
+    } catch (accessTokenError) {
+      console.log('nhảy vào đây thực thi');
       try {
         const decodedRefreshToken = this.jwtService.verify(refreshToken, {
           secret: process.env.REFRESH_JWT_SECRET,
@@ -66,8 +66,8 @@ export class AuthMiddleware implements NestMiddleware {
         });
 
         next();
-      } catch (refreshTokenError) {
-        console.log('Invalid refresh token error:', refreshTokenError);
+      } catch (err) {
+        console.log('Invalid refresh token error:', err);
         return res.status(401).json({ message: 'Invalid refresh token' });
       }
     }

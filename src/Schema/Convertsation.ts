@@ -3,7 +3,7 @@ import { Chat } from './Chat';
 import * as mongoose from 'mongoose';
 
 @Schema({ timestamps: true, collection: 'Convertsation' })
-export class ConvertShema extends mongoose.Document {
+export class Converstation extends mongoose.Document {
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }] })
   participants: mongoose.Schema.Types.ObjectId[];
 
@@ -14,4 +14,4 @@ export class ConvertShema extends mongoose.Document {
   nameChat: string;
 }
 
-export const Converstation = SchemaFactory.createForClass(ConvertShema);
+export const ConverstationSchema = SchemaFactory.createForClass(Converstation);

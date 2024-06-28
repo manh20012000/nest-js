@@ -17,7 +17,7 @@ export class AuthMiddleware implements NestMiddleware {
     // const cookies = req.headers.cookie;
     const accessToken = req.headers['authorization'];
     const refreshToken = req.headers['refresh-token'] as string;
-
+  
     if (!accessToken) {
       return res.status(401).json({ message: 'Missing cookies' });
     }

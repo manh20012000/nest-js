@@ -17,8 +17,7 @@ export class NotificationController {
   @Post('Send')
   async senNotification(@Body() notifi: any, @Req() req: Request) {
     const user = (req as any).user;
-    console.log(notifi, 'giá trị được gữi sang ', user._id);
+
     this.NotificationService.sendMessage(notifi, user._id);
-    
   }
 }

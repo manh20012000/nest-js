@@ -10,6 +10,7 @@ import { AuthService } from './AuthService';
 import { AuthController } from './Auth.controller';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthMiddleware } from 'src/Protected/MiddwaveProtected';
+import { NotificationModule } from '../EventNotification/Notification.Module';
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: 'AuthModel', schema: AuthSchema }]),

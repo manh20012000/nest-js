@@ -11,6 +11,11 @@ import { Notification, NotificationShema } from 'src/Schema/Notification';
 import { AuthModule } from '../Authen/Auth.modules';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthSchema } from 'src/Schema/userSchame';
+import {
+  MessagingProvider,
+  messagingProvider,
+} from 'src/Confige/ConfigeFirebase';
+import * as admin from 'firebase-admin';
 @Module({
   imports: [
     MongooseModule.forFeature([
@@ -26,7 +31,7 @@ import { AuthSchema } from 'src/Schema/userSchame';
     }),
     AuthModule,
   ],
-  providers: [NotificationService],
+  providers: [messagingProvider, messagingProvider, NotificationService],
   controllers: [NotificationController],
 })
 export class NotificationModule {}

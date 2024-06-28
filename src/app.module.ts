@@ -9,6 +9,7 @@ import { EventGateway } from './EventGateway';
 import { join } from 'path';
 import { ChatModule } from './Module/ChatSocket/Chat.Module';
 import { NotificationModule } from './Module/EventNotification/Notification.Module';
+import { messagingProvider } from './Confige/ConfigeFirebase';
 @Module({
   imports: [
     ConfigModule.forRoot({
